@@ -11,6 +11,9 @@ class CalculatorUI {
         this.initNotationSelector();
         this.initPrecisionSelector();
         this.updateDisplay();
+        this.initTabs();
+        this.updateNotationDisplay();
+        this.updateMemoryIndicator();
     }
 
     initButtons() {
@@ -73,12 +76,12 @@ class CalculatorUI {
         // Кнопки памяти
         document.getElementById('mc')?.addEventListener('click', () => {
             this.control._memory.edit(MemoryCommand.Clear);
-            this.updateDisplay();
+            this.updateMemoryIndicator();
         });
 
         document.getElementById('mr')?.addEventListener('click', () => {
-            const [result] = this.control._memory.edit(MemoryCommand.Copy);
-            if (result) {
+            const [result, hasValue] = this.control._memory.edit(MemoryCommand.Copy);
+            if (hasValue) {
                 this.control._displayResult(result);
                 this.updateDisplay();
             }
@@ -87,11 +90,13 @@ class CalculatorUI {
         document.getElementById('ms')?.addEventListener('click', () => {
             const currentNumber = this.control._parseEditorNumber();
             this.control._memory.edit(MemoryCommand.Store, currentNumber);
+            this.updateMemoryIndicator();
         });
 
         document.getElementById('m-plus')?.addEventListener('click', () => {
             const currentNumber = this.control._parseEditorNumber();
             this.control._memory.edit(MemoryCommand.Add, currentNumber);
+            this.updateMemoryIndicator();
         });
     }
 
@@ -106,32 +111,71 @@ class CalculatorUI {
     }
 
     initPrecisionSelector() {
-        const precisionSelect = document.getElementById('precision');
-        if (precisionSelect) {
-            precisionSelect.addEventListener('change', () => {
-                const newPrecision = parseInt(precisionSelect.value);
+        const precisionInput = document.getElementById('precision');
+        const precisionValue = document.getElementById('precision-value');
+        
+        if (precisionInput && precisionValue) {
+            precisionInput.addEventListener('input', () => {
+                const newPrecision = parseInt(precisionInput.value);
+                precisionValue.textContent = newPrecision;
                 this.updatePrecision(newPrecision);
             });
         }
     }
 
+    initTabs() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const contents = document.querySelectorAll('.tab-content');
+                contents.forEach(c => c.classList.remove('active'));
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+    }
+
+    updateNotationDisplay() {
+        const notationMap = {
+            2: 'BIN',
+            8: 'OCT',
+            10: 'DEC',
+            16: 'HEX'
+        };
+        
+        const display = document.getElementById('current-notation');
+        if (display) {
+            display.textContent = notationMap[this.control.notation] || '';
+        }
+    }
+
     updateNotation(newNotation) {
         try {
-            // Сохраняем текущее значение в десятичной системе
+            // Сохраняем текущее значение и состояние памяти
             const currentValue = this.control._parseEditorNumber();
+            const memoryValue = this.control._memory.value;
+            const hasMemory = this.control._memory.hasValue;
             
             // Создаем новый калькулятор с новой системой счисления
             this.control = new ADT_Control(newNotation, this.control.precision);
             
-            // Конвертируем значение в новую систему счисления
-            const convertedValue = new TPNumber(currentValue.getNumber(), newNotation, this.control.precision);
+            // Восстанавливаем значение памяти
+            if (hasMemory) {
+                const convertedMemory = new TPNumber(memoryValue.getNumber(), newNotation, this.control.precision);
+                this.control._memory.edit(MemoryCommand.Store, convertedMemory);
+            }
             
-            // Отображаем сконвертированное значение
+            // Конвертируем и отображаем текущее значение
+            const convertedValue = new TPNumber(currentValue.getNumber(), newNotation, this.control.precision);
             this.control._displayResult(convertedValue);
             this.updateDisplay();
 
-            // Обновляем доступность кнопок
+            // Обновляем доступность кнопок и индикаторы
             this.updateButtonsAvailability(newNotation);
+            this.updateNotationDisplay();
+            this.updateMemoryIndicator();
         } catch (error) {
             console.error('Error changing notation:', error);
         }
@@ -173,6 +217,22 @@ class CalculatorUI {
 
     updateDisplay(value) {
         this.display.textContent = value || this.control.display;
+    }
+
+    updateMemoryIndicator() {
+        const indicator = document.getElementById('memory-indicator');
+        const hasMemory = this.control._memory.hasValue;
+        
+        if (indicator) {
+            indicator.classList.toggle('active', hasMemory);
+        }
+
+        // Обновляем доступность кнопок MC и MR
+        const mcButton = document.getElementById('mc');
+        const mrButton = document.getElementById('mr');
+        
+        if (mcButton) mcButton.classList.toggle('active', hasMemory);
+        if (mrButton) mrButton.classList.toggle('active', hasMemory);
     }
 }
 

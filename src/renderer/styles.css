@@ -31,9 +31,10 @@ body {
 
 .memory-buttons {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr) auto;
     gap: 10px;
     margin-bottom: 15px;
+    position: relative;
 }
 
 .buttons {
@@ -176,4 +177,104 @@ body {
 
 .select-css option {
     background-color: #2d2d2d;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #3b3b3b;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    opacity: 1;
+    border-bottom: 2px solid #ff9500;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.notation-display {
+    text-align: right;
+    padding: 5px;
+    color: #888;
+    font-size: 0.8em;
+}
+
+.settings-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #3b3b3b;
+    border-radius: 5px;
+}
+
+.settings-group h3 {
+    color: #fff;
+    margin: 0 0 10px 0;
+    font-size: 1em;
+}
+
+.precision-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 5px;
+    border-radius: 5px;
+    background: #4a4a4a;
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #ff9500;
+    cursor: pointer;
+}
+
+small {
+    color: #888;
+    font-size: 0.8em;
+    display: block;
+    margin-top: 5px;
+}
+
+.memory-indicator {
+    color: #ff9500;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.9em;
+    align-self: center;
+}
+
+.memory-indicator.active {
+    opacity: 1;
+}
+
+/* Добавляем подсветку активных кнопок памяти */
+.btn.mem.active {
+    background: #3a3a3a;
+    border: 1px solid #ff9500;
 } 
