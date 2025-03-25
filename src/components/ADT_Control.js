@@ -149,7 +149,8 @@ class ADT_Control {
     // Очистка калькулятора
     clear() {
         this._editor.edit('CE');
-        this._memory.edit('Clear');
+        // Убираем очистку памяти
+        // this._memory.edit('Clear');
         this._currentOperation = null;
         this._hasFirstOperand = false;
         this._awaitingSecondOperand = false;
