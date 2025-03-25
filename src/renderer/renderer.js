@@ -98,6 +98,13 @@ class CalculatorUI {
             this.control._memory.edit(MemoryCommand.Add, currentNumber);
             this.updateMemoryIndicator();
         });
+
+        // Добавляем обработчик для sqr
+        document.getElementById('sqr')?.addEventListener('click', () => {
+            this.control.setOperation(Operations.Sqr);
+            this.control.getResult();  // Сразу получаем результат
+            this.updateDisplay();
+        });
     }
 
     initNotationSelector() {

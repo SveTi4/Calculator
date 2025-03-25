@@ -117,6 +117,7 @@ body {
 /* Стили для equals */
 #equals {
     background: #28a745;
+    grid-column: span 2;
 }
 
 #equals:hover {
@@ -277,4 +278,13 @@ small {
 .btn.mem.active {
     background: #3a3a3a;
     border: 1px solid #ff9500;
+}
+
+/* Обновляем стили для кнопки x² */
+#sqr {
+    background: #ff9500;
+}
+
+#sqr:hover {
+    background: #ffaa33;
 } 

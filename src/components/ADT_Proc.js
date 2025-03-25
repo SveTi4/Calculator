@@ -9,7 +9,8 @@ class ADT_Proc {
                     throw new Error('Division by zero');
                 }
                 return a.div(b);
-            }
+            },
+            'Sqr': (a) => a.mul(a)
         };
     }
 
@@ -19,7 +20,9 @@ class ADT_Proc {
         }
 
         try {
-            return this._operations[operation](leftOperand, rightOperand);
+            return operation === 'Sqr' 
+                ? this._operations[operation](leftOperand)
+                : this._operations[operation](leftOperand, rightOperand);
         } catch (error) {
             throw new Error(`Operation error: ${error.message}`);
         }
@@ -31,7 +34,8 @@ const Operations = {
     Add: 'Add',
     Sub: 'Sub',
     Mul: 'Mul',
-    Div: 'Div'
+    Div: 'Div',
+    Sqr: 'Sqr'
 };
 
 module.exports = { ADT_Proc, Operations }; 
