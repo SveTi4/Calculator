@@ -5,8 +5,9 @@ let mainWindow = null;
 
 async function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 660,
-        height: 680,
+        width: 360,
+        height: 656,
+        resizable: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -15,7 +16,7 @@ async function createWindow() {
     });
 
     await mainWindow.loadFile(path.join(__dirname, '../../src/renderer/index.html'));
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
