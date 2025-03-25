@@ -18,6 +18,8 @@ class ADT_Control {
         this._currentOperation = null;
         this._hasFirstOperand = false;
         this._awaitingSecondOperand = false;
+        this._lastOperation = null;  // Сохраняем последнюю операцию
+        this._lastOperand = null;    // Сохраняем последний операнд
     }
 
     // Получение текущего отображаемого значения
@@ -43,42 +45,47 @@ class ADT_Control {
             throw new Error(`Unknown operation: ${operation}`);
         }
 
-        const currentNumber = this._parseEditorNumber();
-
-        if (!this._hasFirstOperand) {
-            // Сохраняем первый операнд
-            this._memory.edit('Store', currentNumber);
-            this._hasFirstOperand = true;
-            this._currentOperation = operation;
-            this._awaitingSecondOperand = true;
-            return this.display;
-        } else if (this._awaitingSecondOperand) {
-            // Если второй операнд еще не введен, просто меняем операцию
-            this._currentOperation = operation;
-            return this.display;
-        } else {
-            // Выполняем предыдущую операцию
-            const firstOperand = this._memory.value;
-            const result = this._processor.execute(
-                this._currentOperation,
-                firstOperand,
-                currentNumber
-            );
-
-            // Сохраняем результат и новую операцию
-            this._memory.edit('Store', result);
-            this._currentOperation = operation;
-            this._awaitingSecondOperand = true;
-
-            // Отображаем результат
-            this._displayResult(result);
-            return this.display;
+        if (this._awaitingSecondOperand) {
+            // Если ждем второй операнд, но получили операцию,
+            // используем текущее значение как второй операнд
+            this._lastOperand = this._parseEditorNumber();
+            this.getResult();
         }
+
+        const currentNumber = this._parseEditorNumber();
+        this._memory.edit('Store', currentNumber);
+        this._currentOperation = operation;
+        this._lastOperation = operation;
+        this._hasFirstOperand = true;
+        this._awaitingSecondOperand = true;
+        return this.display;
     }
 
     // Получение результата
     getResult() {
+        if (!this._hasFirstOperand && this._lastOperation && this._lastOperand) {
+            // Случай 2: операция с одним операндом (5 * = 25)
+            const currentNumber = this._parseEditorNumber();
+            const result = this._processor.execute(
+                this._lastOperation,
+                currentNumber,
+                this._lastOperand
+            );
+            this._displayResult(result);
+            return this.display;
+        }
+
         if (!this._hasFirstOperand || !this._currentOperation) {
+            if (this._lastOperation && this._lastOperand) {
+                // Случай 3: повторное выполнение последней операции
+                const currentNumber = this._parseEditorNumber();
+                const result = this._processor.execute(
+                    this._lastOperation,
+                    currentNumber,
+                    this._lastOperand
+                );
+                this._displayResult(result);
+            }
             return this.display;
         }
 
@@ -92,10 +99,13 @@ class ADT_Control {
                 secondOperand
             );
 
+            // Сохраняем операнд для повторного использования
+            this._lastOperand = secondOperand;
+            
             // Сброс состояния
             this._hasFirstOperand = false;
             this._currentOperation = null;
-            this._awaitingSecondOperand = true;
+            this._awaitingSecondOperand = false;
 
             // Отображаем результат
             this._displayResult(result);
@@ -149,11 +159,10 @@ class ADT_Control {
     // Очистка калькулятора
     clear() {
         this._editor.edit('CE');
-        // Убираем очистку памяти
-        // this._memory.edit('Clear');
         this._currentOperation = null;
         this._hasFirstOperand = false;
         this._awaitingSecondOperand = false;
+        // Не очищаем _lastOperation и _lastOperand
         return this.display;
     }
 }
